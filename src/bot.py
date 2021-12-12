@@ -177,6 +177,54 @@ class Bot:
         c = np.random.choice(len(children))
         return children[c]
 
+    def min_max(position, depth, max_player):
+        if depth == 0 or position.get_game_end():
+            return position.evaluate_state()
+        if max_player:
+            max_evaluation = -inf
+            for child in position.get_next_moves():
+                eval = min_max(child, depth - 1, False)
+                max_evaluation = max(max_evaluation, eval)
+            position.set_evaluation(max_evaluation)
+            return max_evaluation
+        else:
+            min_evaluation = inf
+            for child in position.get_next_moves():
+                eval = min_max(child, depth - 1, True)
+                min_evaluation = min(min_evaluation, eval)
+            position.set_evaluation(min_evaluation)
+            return min_evaluation
+
+    # MIN MAX with ALPHA-BETA pruning
+
+    def alpha_beta(position, depth, alpha, beta, max_player, forced_caputure):
+        if depth == 0 or position.get_game_end():
+            return position.evaluate_state()
+        if max_player:
+            max_evaluation = -inf
+            for child in position.get_next_moves(forced_caputure):
+                eval = alpha_beta(child, depth - 1, alpha,
+                                  beta, False, forced_caputure)
+                max_evaluation = max(max_evaluation, eval)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    # print("pruning max")
+                    break
+            position.set_evaluation(max_evaluation)
+            return max_evaluation
+        else:
+            min_evaluation = inf
+            for child in position.get_next_moves(forced_caputure):
+                eval = alpha_beta(child, depth - 1, alpha,
+                                  beta, True, forced_caputure)
+                min_evaluation = min(min_evaluation, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    # print("pruning min")
+                    break
+            position.set_evaluation(min_evaluation)
+            return min_evaluation
+
 
 if __name__ == "__main__":
     child = None
