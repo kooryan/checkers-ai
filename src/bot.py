@@ -10,6 +10,8 @@ import torch as tr
 import checkers_net as cn
 import checkers_data as cd
 from pathlib import Path
+from math import inf
+
 path = Path('data/')
 
 net = None
@@ -177,53 +179,44 @@ class Bot:
         c = np.random.choice(len(children))
         return children[c]
 
-    def min_max(position, depth, max_player):
-        if depth == 0 or position.get_game_end():
-            return position.evaluate_state()
+    def alpha_beta(self, node, depth, alpha, beta, max_player):
+        children = node.children()
+
+        if depth == 0:
+            return 0, node
         if max_player:
             max_evaluation = -inf
-            for child in position.get_next_moves():
-                eval = min_max(child, depth - 1, False)
-                max_evaluation = max(max_evaluation, eval)
-            position.set_evaluation(max_evaluation)
-            return max_evaluation
-        else:
-            min_evaluation = inf
-            for child in position.get_next_moves():
-                eval = min_max(child, depth - 1, True)
-                min_evaluation = min(min_evaluation, eval)
-            position.set_evaluation(min_evaluation)
-            return min_evaluation
-
-    # MIN MAX with ALPHA-BETA pruning
-
-    def alpha_beta(position, depth, alpha, beta, max_player, forced_caputure):
-        if depth == 0 or position.get_game_end():
-            return position.evaluate_state()
-        if max_player:
-            max_evaluation = -inf
-            for child in position.get_next_moves(forced_caputure):
-                eval = alpha_beta(child, depth - 1, alpha,
-                                  beta, False, forced_caputure)
-                max_evaluation = max(max_evaluation, eval)
-                alpha = max(alpha, eval)
+            best_move = None
+            for j in range(len(children)):
+                eval = self.alpha_beta(children[j], depth - 1, alpha,
+                                       beta, False)
+                if max_evaluation < eval[0]:
+                    max_evaluation = eval[0]
+                    best_move = children[j]
+                    alpha = max(alpha, max_evaluation)
                 if beta <= alpha:
                     # print("pruning max")
                     break
-            position.set_evaluation(max_evaluation)
-            return max_evaluation
+                self.tree_node_processed += 1
+            return max_evaluation, best_move
         else:
             min_evaluation = inf
-            for child in position.get_next_moves(forced_caputure):
-                eval = alpha_beta(child, depth - 1, alpha,
-                                  beta, True, forced_caputure)
-                min_evaluation = min(min_evaluation, eval)
-                beta = min(beta, eval)
+            best_move = None
+            for j in range(len(children)):
+                eval = self.alpha_beta(children[j], depth - 1, alpha,
+                                       beta, True)
+                if min_evaluation > eval[0]:
+                    min_evaluation = eval[0]
+                    best_move = children[j]
+                    beta = min(beta, min_evaluation)
+
                 if beta <= alpha:
                     # print("pruning min")
                     break
-            position.set_evaluation(min_evaluation)
-            return min_evaluation
+                self.tree_node_processed += 1
+
+            return min_evaluation, best_move
+
 
 
 if __name__ == "__main__":

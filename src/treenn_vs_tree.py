@@ -63,9 +63,11 @@ def main():
     scores = []
     nodes_processed_list_NNMCTS = []
     nodes_processed_list_MCTS = []
+    MCTS_AI_WON = 0
+    NN_MCTS_AI_WON = 0
     while games < num_of_games:
         state = Board(board_config, num_of_pawns)
-        obstacles = state.set_obstacles(3)
+        obstacles = state.set_obstacles(0)
         print(f"Obstacles added at {obstacles}")
         games += 1
         moves = -1
@@ -104,9 +106,11 @@ def main():
         print(f"Total moves: {moves}")
         score = state.compute_score()
         if(len(state.p1_pawns) > len(state.p2_pawns)):
+            NN_MCTS_AI_WON += 1
             print("NN + MCTS AI Won")
             print(f"Score = {score}")
         elif len(state.p1_pawns) < len(state.p2_pawns):
+            MCTS_AI_WON += 1
             print("MCTS AI Won")
             print(f"Score = {score * -1}")
         else: 
@@ -120,7 +124,8 @@ def main():
     from pathlib import Path
     path = Path('~/../plots/')
     with open(path/f"NNMCTSvMCTS{board_config}x{board_config}_{num_of_games}_{num_of_pawns}.txt", 'w') as f:
-        f.write(f"Moves List: {moves_list}\nScores List: {scores}\nNodes Processed List MCTS: {nodes_processed_list_MCTS}\nNodes Processed List NN + MCTS: {nodes_processed_list_NNMCTS}")
+        f.write(f"Moves List: {moves_list}\nScores List: {scores}\nNodes Processed List MCTS: {nodes_processed_list_MCTS}\nNodes Processed List NN + MCTS: {nodes_processed_list_NNMCTS}"
+                f"\nMCTS_AI_WON: {MCTS_AI_WON}\nNN + MCTS WON: {NN_MCTS_AI_WON}")
     print(moves_list)
     print(scores)
     print(nodes_processed_list_MCTS)

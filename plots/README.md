@@ -1,7 +1,7 @@
 # PLOTS
 
 The below 3 graphs shows the performance of our AI:
-### Data Source: [8x8](./Simulated_8x8.txt), [10x10](./Simulated_10x10_50.txt), [6x6](./Simulated_6x6_100.txt)
+### Data Source: [8x8](../old_plots/Simulated_8x8.txt), [10x10](./Simulated_10x10_50.txt), [6x6](../old_plots/Simulated_6x6_100.txt)
 
 # Plots for 8x8 Board (100 games completed)
 
